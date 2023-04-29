@@ -154,5 +154,39 @@ class MainActivity : AppCompatActivity() {
         private val REQUIRED_PERMISSIONS = arrayOf(Manifest.permission.CAMERA)
         private const val REQUEST_CODE_PERMISSIONS = 10
     }
-
 }
+
+// 2 ways to send data to server:
+// - application/x-www-urlencoded
+// - multipart/form-data
+
+// Urlencoded: send a key-value pairs to server
+// every pairs is divided with ampersand (&), every pairs is connected with equals (=). Example:
+// - name="Rickyslash"&pet="voyager"
+
+// Multipart: send a key-value pairs to server, within one body
+// it means that you could send the 'file' & 'file's information' to with it
+
+/*Example of multipart:
+Content-Type: multipart/form-data; boundary=babfeb1d-35ac-4566-8d37-1e14a1a702ca
+Content-Length: 452
+
+--babfeb1d-35ac-4566-8d37-1e14a1a702ca
+Content-Disposition: form-data; name="photo"; filename="15-36-20-02-Feb-2022-3281877920632984047.jpg"
+Content-Type: image/jpeg
+Content-Length: 526236
+
+--babfeb1d-35ac-4566-8d37-1e14a1a702ca
+Content-Disposition: form-data; name="description"
+Content-Transfer-Encoding: binary
+Content-Type: text/plain; charset=utf-8
+Content-Length: 27
+
+--babfeb1d-35ac-4566-8d37-1e14a1a702ca--
+*/
+
+// Explanation of Multipart example:
+// - Content-Type: type of media being used
+// - Content-Length: message body size in Byte
+// - Content-Disposition: information about `field` in form-data
+// - --babfeb1d-35ac-4566-8d37-1e14a1a702ca: string boundary for each value
