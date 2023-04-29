@@ -17,12 +17,23 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.content.FileProvider
+import com.dicoding.picodiploma.mycamera.api.ApiConfig
+import com.dicoding.picodiploma.mycamera.api.FileUploadResponse
+import okhttp3.MediaType.Companion.toMediaType
+import okhttp3.MultipartBody
+import okhttp3.RequestBody.Companion.asRequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var currentPhotoPath: String
+
+    private var getFile: File? = null
 
     // launcher for CameraX
     private val launcherIntentCameraX = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
@@ -39,6 +50,8 @@ class MainActivity : AppCompatActivity() {
             myFile?.let { file ->
                 // calls function from custom Utils class
                 rotateAndCompressFile(file, isBackCamera)
+                // set getFile variable
+                getFile = file
                 // set the View
                 binding.previewImageView.setImageBitmap(BitmapFactory.decodeFile(file.path))
             }
@@ -91,7 +104,42 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun uploadImage() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        if (getFile != null) {
+            val file = getFile as File
+            // toRequestBody create request body from string, byte array, etc
+            val description = "This photo is captured by YOU!".toRequestBody("text/plain".toMediaType())
+            // asRequestBody create request body from file, etc
+            val requestImageFile = file.asRequestBody("image/jpeg".toMediaType())
+            // create multipart request object
+            val imageMultipart: MultipartBody.Part = MultipartBody.Part.createFormData("photo", file.name, requestImageFile)
+
+            val apiService = ApiConfig().getApiService()
+            // use uploadImage from ApiService to set multipart to be uploaded
+            val uploadImageRequest = apiService.uploadImage(imageMultipart, description)
+            uploadImageRequest.enqueue(object : Callback<FileUploadResponse> {
+                override fun onResponse(
+                    call: Call<FileUploadResponse>,
+                    response: Response<FileUploadResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null && !responseBody.error) {
+                            Toast.makeText(this@MainActivity, responseBody.message, Toast.LENGTH_SHORT).show()
+                        }
+                    } else {
+                        Toast.makeText(this@MainActivity, response.message(), Toast.LENGTH_SHORT).show()
+                    }
+                }
+
+                override fun onFailure(call: Call<FileUploadResponse>, t: Throwable) {
+                    Toast.makeText(this@MainActivity, t.message, Toast.LENGTH_SHORT).show()
+                }
+
+            })
+
+        } else {
+            Toast.makeText(this@MainActivity, "Please assign an image first", Toast.LENGTH_SHORT).show()
+        }
     }
 
     private fun startGallery() {
