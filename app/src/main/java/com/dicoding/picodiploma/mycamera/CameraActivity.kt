@@ -126,3 +126,15 @@ class CameraActivity : AppCompatActivity() {
         supportActionBar?.hide()
     }
 }
+
+// CameraX is a Jetpack library that has more features rather than default camera (Bokeh, HDR, Night, FaceRetouch, etc)
+
+// Reason to use CameraX:
+// - Wide support range: Available for Android 5.0 API & above
+// - Easy to use using UseCases method. Example of UseCases:
+// --- Preview: show live preview to screen
+// --- Image Analysis: access buffer seamlessly to be used in algorithm (MLKit, etc)
+// --- ImageCapture: save image
+// --- VideoCapture: save video & audio
+// - Consistent in every device
+// - Extension available for feature such Bokeh, HDR, Night, & FAce Retouch
