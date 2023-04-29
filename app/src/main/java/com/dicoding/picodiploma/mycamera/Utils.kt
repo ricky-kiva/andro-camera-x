@@ -8,14 +8,12 @@ import android.graphics.BitmapFactory
 import android.graphics.Matrix
 import android.net.Uri
 import android.os.Environment
-import java.io.File
-import java.io.FileOutputStream
-import java.io.InputStream
-import java.io.OutputStream
+import java.io.*
 import java.text.SimpleDateFormat
 import java.util.*
 
 private const val FILENAME_FORMAT = "dd-MMM-yyyy"
+private const val MAXIMAL_SIZE = 1000000 // maximal size for multipart to send
 
 val timeStamp: String = SimpleDateFormat(
     FILENAME_FORMAT,
@@ -113,4 +111,22 @@ fun uriToFile(selectedImg: Uri, context: Context): File {
     outputStream.close()
     inputStream.close()
     return myFile
+}
+
+fun reduceFileImage(file: File): File {
+    // decode the input file to Bitmap
+    val bitmap = BitmapFactory.decodeFile(file.path)
+    var compressQuality = 100
+    var streamLength: Int
+    do {
+        // compress Bitmap in while loop, until streamLength < MAXIMAL_SIZE
+        val bmpStream = ByteArrayOutputStream()
+        bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, bmpStream)
+        val bmpPicByteArray = bmpStream.toByteArray()
+        streamLength = bmpPicByteArray.size
+        compressQuality -= 5
+    } while (streamLength > MAXIMAL_SIZE)
+    // compress & write the compressed byte array to the same file using FileOutputStream()
+    bitmap.compress(Bitmap.CompressFormat.JPEG, compressQuality, FileOutputStream(file))
+    return file
 }

@@ -26,7 +26,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.FileOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -105,7 +107,8 @@ class MainActivity : AppCompatActivity() {
 
     private fun uploadImage() {
         if (getFile != null) {
-            val file = getFile as File
+            // get file & reduce using custom function in Utils
+            val file = reduceFileImage(getFile as File)
             // toRequestBody create request body from string, byte array, etc
             val description = "This photo is captured by YOU!".toRequestBody("text/plain".toMediaType())
             // asRequestBody create request body from file, etc
