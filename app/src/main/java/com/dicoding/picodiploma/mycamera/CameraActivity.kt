@@ -47,6 +47,7 @@ class CameraActivity : AppCompatActivity() {
         // val variable = nullableValue ?: defaultValue
        val imageCapture = imageCapture ?: return
 
+        // calls function from custom Utils class
         // make file to store captured photo
         val photoFile = createFile(application)
 

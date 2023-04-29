@@ -29,6 +29,9 @@ class MainActivity : AppCompatActivity() {
 
             val isBackCamera = it.data?.getBooleanExtra("isBackCamera", true) as Boolean
             myFile?.let { file ->
+                // calls function from custom Utils class
+                rotateAndCompressFile(file, isBackCamera)
+                // set the View
                 binding.previewImageView.setImageBitmap(BitmapFactory.decodeFile(file.path))
             }
         }
