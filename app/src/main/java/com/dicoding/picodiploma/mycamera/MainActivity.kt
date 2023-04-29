@@ -6,6 +6,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.mycamera.databinding.ActivityMainBinding
 import android.Manifest
+import android.content.Intent.ACTION_GET_CONTENT
 import android.content.pm.PackageManager
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
@@ -59,6 +60,20 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // launcher for Intent Gallery
+    // this sets image to be displayed on MainActivity
+    private val launcherIntentGallery = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            // get the URI data as URI
+            val selectedImg = it.data?.data as Uri
+            selectedImg.let { uri ->
+                val myFile = uriToFile(uri, this@MainActivity)
+                // set image by URI
+                binding.previewImageView.setImageURI(uri)
+            }
+        }
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
@@ -80,7 +95,15 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startGallery() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        val intent = Intent()
+        // this is the Intent action that return data item
+        intent.action = ACTION_GET_CONTENT
+        // the type that is filtered is all type of image file
+        intent.type = "image/*"
+        // choose app that could handle ACTION_GET_CONTENT
+        val chooser = Intent.createChooser(intent, "Choose a Picture")
+        // launch the intent via launcherIntentGallery variable
+        launcherIntentGallery.launch(chooser)
     }
 
     private fun startTakePhoto() {
