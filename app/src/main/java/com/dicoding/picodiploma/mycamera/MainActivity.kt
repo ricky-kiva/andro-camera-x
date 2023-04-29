@@ -7,8 +7,10 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.mycamera.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Build
+import android.provider.MediaStore
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
@@ -17,6 +19,7 @@ import java.io.File
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
+    // launcher for CameraX
     private val launcherIntentCameraX = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
         if (it.resultCode == CAMERA_X_RESULT) {
             val myFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -34,6 +37,14 @@ class MainActivity : AppCompatActivity() {
                 // set the View
                 binding.previewImageView.setImageBitmap(BitmapFactory.decodeFile(file.path))
             }
+        }
+    }
+
+    // launcher for default Camera (Intent Camera)
+    private val launcherIntentCamera = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == RESULT_OK) {
+            val imageBitmap = it.data?.extras?.get("data") as Bitmap
+            binding.previewImageView.setImageBitmap(imageBitmap)
         }
     }
 
@@ -62,7 +73,8 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun startTakePhoto() {
-        Toast.makeText(this, "Fitur ini belum tersedia", Toast.LENGTH_SHORT).show()
+        val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE)
+        launcherIntentCamera.launch(intent)
     }
 
     private fun startCameraX() {
