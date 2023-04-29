@@ -5,6 +5,12 @@
     <uses-feature android:name="android.hardware.camera"/>
     <uses-permission android:name="android.permission.CAMERA"/>
 
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+    <!-- Unnecessary for API Level 18 & above -->
+    <uses-permission
+        android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="18"/>
+
     <application
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
@@ -26,6 +32,20 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <!-- provider is a tag to manage data access in/out app -->
+        <!-- can grant other app temporary Uri access to read/write files -->
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="com.dicoding.picodiploma.mycamera"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <!-- this metadata specifies XML file that contains paths where provider can access files (file_paths) -->
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths"/>
+        </provider>
+
     </application>
 
 </manifest>
