@@ -7,11 +7,32 @@ import androidx.appcompat.app.AppCompatActivity
 import com.dicoding.picodiploma.mycamera.databinding.ActivityMainBinding
 import android.Manifest
 import android.content.pm.PackageManager
+import android.graphics.BitmapFactory
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import java.io.File
 
 class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
+
+    private val launcherIntentCameraX = registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+        if (it.resultCode == CAMERA_X_RESULT) {
+            val myFile = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+                // get the picture from parsed extra as File
+                it.data?.getSerializableExtra("picture", File::class.java)
+            } else {
+                @Suppress("DEPRECATION")
+                it.data?.getSerializableExtra("picture")
+            } as? File // use this type of casting so it will be null if the result failed to be grasped
+
+            val isBackCamera = it.data?.getBooleanExtra("isBackCamera", true) as Boolean
+            myFile?.let { file ->
+                binding.previewImageView.setImageBitmap(BitmapFactory.decodeFile(file.path))
+            }
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -43,7 +64,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun startCameraX() {
         val intent = Intent(this, CameraActivity::class.java)
-        startActivity(intent)
+        launcherIntentCameraX.launch(intent)
     }
 
     override fun onRequestPermissionsResult(

@@ -1,5 +1,6 @@
 package com.dicoding.picodiploma.mycamera
 
+import android.content.Intent
 import android.os.Build
 import android.os.Bundle
 import android.view.WindowInsets
@@ -8,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
+import androidx.camera.core.ImageCaptureException
 import androidx.camera.core.Preview
 import androidx.camera.lifecycle.ProcessCameraProvider
 import androidx.core.content.ContextCompat
@@ -42,7 +44,39 @@ class CameraActivity : AppCompatActivity() {
     }
 
     private fun takePhoto() {
-       // takePhoto
+        // val variable = nullableValue ?: defaultValue
+       val imageCapture = imageCapture ?: return
+
+        // make file to store captured photo
+        val photoFile = createFile(application)
+
+        // make builder to configure output options of captured image
+        val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
+
+        // method to take picture
+        imageCapture.takePicture(
+            outputOptions,
+            ContextCompat.getMainExecutor(this),
+            object : ImageCapture.OnImageSavedCallback {
+                // this when image is saved
+                override fun onImageSaved(outputFileResults: ImageCapture.OutputFileResults) {
+                    Toast.makeText(this@CameraActivity, "Image captured!", Toast.LENGTH_SHORT).show()
+                    val intent = Intent()
+                    // send the photoFile
+                    intent.putExtra("picture", photoFile)
+                    // send boolean extra whether it's from back camera or not
+                    intent.putExtra("isBackCamera", cameraSelector == CameraSelector.DEFAULT_BACK_CAMERA)
+                    // set the intent result on MainActivity
+                    setResult(MainActivity.CAMERA_X_RESULT, intent)
+                    finish()
+                }
+
+                // this when there is error
+                override fun onError(exception: ImageCaptureException) {
+                    Toast.makeText(this@CameraActivity, "Failed to capture image", Toast.LENGTH_SHORT).show()
+                }
+            }
+        )
     }
 
     private fun startCamera() {
